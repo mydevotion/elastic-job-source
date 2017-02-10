@@ -62,23 +62,26 @@ import static com.dangdang.ddframe.job.lite.spring.job.parser.common.BaseJobBean
 
 /**
  * 基本作业的命名空间解析器.
- * 
+ *
  * @author zhangliang
  * @author caohao
  */
 public abstract class AbstractJobBeanDefinitionParser extends AbstractBeanDefinitionParser {
-    
+
     @Override
     protected AbstractBeanDefinition parseInternal(final Element element, final ParserContext parserContext) {
         BeanDefinitionBuilder factory = BeanDefinitionBuilder.rootBeanDefinition(SpringJobScheduler.class);
         factory.setInitMethodName("init");
         factory.setDestroyMethodName("shutdown");
+        // 如果标签中有 class属性，则根据类名称获取spring bean初始化到SpringJobScheduler中
         if ("".equals(element.getAttribute(CLASS_ATTRIBUTE))) {
             factory.addConstructorArgValue(null);
         } else {
             factory.addConstructorArgValue(BeanDefinitionBuilder.rootBeanDefinition(element.getAttribute(CLASS_ATTRIBUTE)).getBeanDefinition());
         }
+        // 根据注册中心配置注册中心
         factory.addConstructorArgReference(element.getAttribute(REGISTRY_CENTER_REF_ATTRIBUTE));
+
         factory.addConstructorArgValue(createLiteJobConfiguration(element));
         BeanDefinition jobEventConfig = createJobEventConfig(element);
         if (null != jobEventConfig) {
@@ -87,13 +90,14 @@ public abstract class AbstractJobBeanDefinitionParser extends AbstractBeanDefini
         factory.addConstructorArgValue(createJobListeners(element));
         return factory.getBeanDefinition();
     }
-    
+
     protected abstract BeanDefinition getJobTypeConfigurationBeanDefinition(final BeanDefinition jobCoreConfigurationBeanDefinition, final Element element);
-    
+
+    // 根据配置，创建job配置
     private BeanDefinition createLiteJobConfiguration(final Element element) {
         return createLiteJobConfigurationBeanDefinition(element, createJobCoreBeanDefinition(element));
     }
-    
+
     private BeanDefinition createLiteJobConfigurationBeanDefinition(final Element element, final BeanDefinition jobCoreBeanDefinition) {
         BeanDefinitionBuilder result = BeanDefinitionBuilder.rootBeanDefinition(LiteJobConfiguration.class);
         result.addConstructorArgValue(getJobTypeConfigurationBeanDefinition(jobCoreBeanDefinition, element));
@@ -105,7 +109,8 @@ public abstract class AbstractJobBeanDefinitionParser extends AbstractBeanDefini
         result.addConstructorArgValue(element.getAttribute(OVERWRITE_ATTRIBUTE));
         return result.getBeanDefinition();
     }
-    
+
+    // 根据spring标签配置，创建JobCoreConfiguration
     private BeanDefinition createJobCoreBeanDefinition(final Element element) {
         BeanDefinitionBuilder jobCoreBeanDefinitionBuilder = BeanDefinitionBuilder.rootBeanDefinition(JobCoreConfiguration.class);
         jobCoreBeanDefinitionBuilder.addConstructorArgValue(element.getAttribute(ID_ATTRIBUTE));
@@ -119,7 +124,13 @@ public abstract class AbstractJobBeanDefinitionParser extends AbstractBeanDefini
         jobCoreBeanDefinitionBuilder.addConstructorArgValue(createJobPropertiesBeanDefinition(element));
         return jobCoreBeanDefinitionBuilder.getBeanDefinition();
     }
-    
+
+    /**
+     * 根据spring标签配置创建JobProperties
+     *
+     * @param element
+     * @return
+     */
     private BeanDefinition createJobPropertiesBeanDefinition(final Element element) {
         BeanDefinitionBuilder result = BeanDefinitionBuilder.rootBeanDefinition(JobProperties.class);
         Map<JobPropertiesEnum, String> map = new LinkedHashMap<>(JobPropertiesEnum.values().length, 1);
@@ -128,7 +139,7 @@ public abstract class AbstractJobBeanDefinitionParser extends AbstractBeanDefini
         result.addConstructorArgValue(map);
         return result.getBeanDefinition();
     }
-    
+
     private BeanDefinition createJobEventConfig(final Element element) {
         String eventTraceDataSourceName = element.getAttribute(EVENT_TRACE_RDB_DATA_SOURCE_ATTRIBUTE);
         if (Strings.isNullOrEmpty(eventTraceDataSourceName)) {
@@ -138,7 +149,7 @@ public abstract class AbstractJobBeanDefinitionParser extends AbstractBeanDefini
         factory.addConstructorArgReference(eventTraceDataSourceName);
         return factory.getBeanDefinition();
     }
-    
+
     private List<BeanDefinition> createJobListeners(final Element element) {
         Element listenerElement = DomUtils.getChildElementByTagName(element, LISTENER_TAG);
         Element distributedListenerElement = DomUtils.getChildElementByTagName(element, DISTRIBUTED_LISTENER_TAG);
@@ -157,7 +168,7 @@ public abstract class AbstractJobBeanDefinitionParser extends AbstractBeanDefini
         }
         return result;
     }
-    
+
     @Override
     protected boolean shouldGenerateId() {
         return true;

@@ -24,11 +24,12 @@ import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 
 /**
  * 分布式作业的命名空间处理器.
- * 
+ * 分布式作业的三种job类型
+ *
  * @author caohao
  */
 public final class JobNamespaceHandler extends NamespaceHandlerSupport {
-    
+
     @Override
     public void init() {
         registerBeanDefinitionParser("simple", new SimpleJobBeanDefinitionParser());

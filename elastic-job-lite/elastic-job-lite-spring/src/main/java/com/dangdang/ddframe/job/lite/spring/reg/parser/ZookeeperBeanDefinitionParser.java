@@ -28,19 +28,31 @@ import org.w3c.dom.Element;
 
 /**
  * 基于Zookeeper注册中心的命名空间解析器.
- * 
+ *
  * @author caohao
  */
 public class ZookeeperBeanDefinitionParser extends AbstractBeanDefinitionParser {
-    
+
     @Override
     protected AbstractBeanDefinition parseInternal(final Element element, final ParserContext parserContext) {
         BeanDefinitionBuilder result = BeanDefinitionBuilder.rootBeanDefinition(ZookeeperRegistryCenter.class);
         result.addConstructorArgValue(buildZookeeperConfigurationBeanDefinition(element));
+        // 生成spring类后会调用 "init"方法初始化
         result.setInitMethodName("init");
         return result.getBeanDefinition();
     }
-    
+
+    /**
+     * 将spring标签属性，转化成类属性
+     * "server-lists"和"namespace"为构造器属性
+     * server-lists：zookeeper的server uri地址
+     * namespace:zookeeper上存储的根目录
+     * <p/>
+     * 可选属性
+     *
+     * @param element
+     * @return
+     */
     private AbstractBeanDefinition buildZookeeperConfigurationBeanDefinition(final Element element) {
         BeanDefinitionBuilder configuration = BeanDefinitionBuilder.rootBeanDefinition(ZookeeperConfiguration.class);
         configuration.addConstructorArgValue(element.getAttribute("server-lists"));
@@ -53,7 +65,7 @@ public class ZookeeperBeanDefinitionParser extends AbstractBeanDefinitionParser 
         addPropertyValueIfNotEmpty("digest", "digest", element, configuration);
         return configuration.getBeanDefinition();
     }
-    
+
     private void addPropertyValueIfNotEmpty(final String attributeName, final String propertyName, final Element element, final BeanDefinitionBuilder factory) {
         String attributeValue = element.getAttribute(attributeName);
         if (!Strings.isNullOrEmpty(attributeValue)) {

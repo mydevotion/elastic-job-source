@@ -22,11 +22,14 @@ import org.springframework.beans.factory.xml.NamespaceHandlerSupport;
 
 /**
  * 注册中心的命名空间处理器.
- * 
+ * <p/>
+ * spring elastic zookeeper标签的注入类，
+ * 具体实现类为{@link com.dangdang.ddframe.job.lite.spring.reg.parser.ZookeeperBeanDefinitionParser}
+ *
  * @author zhangliang
  */
 public class RegNamespaceHandler extends NamespaceHandlerSupport {
-    
+
     @Override
     public void init() {
         registerBeanDefinitionParser("zookeeper", new ZookeeperBeanDefinitionParser());
