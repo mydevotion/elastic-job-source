@@ -74,6 +74,10 @@ public abstract class AbstractJobBeanDefinitionParser extends AbstractBeanDefini
         factory.setInitMethodName("init");
         factory.setDestroyMethodName("shutdown");
         // 如果标签中有 class属性，则根据类名称获取spring bean初始化到SpringJobScheduler中
+        /**
+         * 根据{@link com.dangdang.ddframe.job.lite.spring.api.SpringJobScheduler}的构造器知道，该class属性应该是
+         * {@link com.dangdang.ddframe.job.api.ElasticJob}接口的实现类
+         */
         if ("".equals(element.getAttribute(CLASS_ATTRIBUTE))) {
             factory.addConstructorArgValue(null);
         } else {
@@ -93,7 +97,15 @@ public abstract class AbstractJobBeanDefinitionParser extends AbstractBeanDefini
 
     protected abstract BeanDefinition getJobTypeConfigurationBeanDefinition(final BeanDefinition jobCoreConfigurationBeanDefinition, final Element element);
 
+
     // 根据配置，创建job配置
+
+    /**
+     * LiteJobConfiguration <-- JobCoreConfiguration <-- JobProperties
+     *
+     * @param element
+     * @return
+     */
     private BeanDefinition createLiteJobConfiguration(final Element element) {
         return createLiteJobConfigurationBeanDefinition(element, createJobCoreBeanDefinition(element));
     }

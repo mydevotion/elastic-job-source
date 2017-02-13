@@ -50,42 +50,43 @@ import java.util.Properties;
 
 /**
  * 作业调度器.
- * 
+ *
  * @author zhangliang
  * @author caohao
  */
 public class JobScheduler {
-    
+
     public static final String ELASTIC_JOB_DATA_MAP_KEY = "elasticJob";
-    
+
     private static final String JOB_FACADE_DATA_MAP_KEY = "jobFacade";
-    
+
     private final String jobName;
-    
+
     private final JobExecutor jobExecutor;
-    
+
     private final JobFacade jobFacade;
-    
+
     private final JobRegistry jobRegistry;
-    
+
     public JobScheduler(final CoordinatorRegistryCenter regCenter, final LiteJobConfiguration liteJobConfig, final ElasticJobListener... elasticJobListeners) {
         this(regCenter, liteJobConfig, new JobEventBus(), elasticJobListeners);
     }
-    
-    public JobScheduler(final CoordinatorRegistryCenter regCenter, final LiteJobConfiguration liteJobConfig, final JobEventConfiguration jobEventConfig, 
+
+    public JobScheduler(final CoordinatorRegistryCenter regCenter, final LiteJobConfiguration liteJobConfig, final JobEventConfiguration jobEventConfig,
                         final ElasticJobListener... elasticJobListeners) {
         this(regCenter, liteJobConfig, new JobEventBus(jobEventConfig), elasticJobListeners);
     }
-    
+
     private JobScheduler(final CoordinatorRegistryCenter regCenter, final LiteJobConfiguration liteJobConfig, final JobEventBus jobEventBus, final ElasticJobListener... elasticJobListeners) {
         jobName = liteJobConfig.getJobName();
         jobExecutor = new JobExecutor(regCenter, liteJobConfig, elasticJobListeners);
         jobFacade = new LiteJobFacade(regCenter, jobName, Arrays.asList(elasticJobListeners), jobEventBus);
         jobRegistry = JobRegistry.getInstance();
     }
-    
+
     /**
      * 初始化作业.
+     * spring初始化类后，调用的初始化方法
      */
     public void init() {
         jobExecutor.init();
@@ -95,7 +96,7 @@ public class JobScheduler {
         jobScheduleController.scheduleJob(jobTypeConfig.getCoreConfig().getCron());
         jobRegistry.addJobScheduleController(jobName, jobScheduleController);
     }
-    
+
     private JobDetail createJobDetail(final String jobClass) {
         JobDetail result = JobBuilder.newJob(LiteJob.class).withIdentity(jobName).build();
         result.getJobDataMap().put(JOB_FACADE_DATA_MAP_KEY, jobFacade);
@@ -111,11 +112,11 @@ public class JobScheduler {
         }
         return result;
     }
-    
+
     protected Optional<ElasticJob> createElasticJobInstance() {
         return Optional.absent();
     }
-    
+
     private Scheduler createScheduler(final boolean isMisfire) {
         Scheduler result;
         try {
@@ -128,7 +129,7 @@ public class JobScheduler {
         }
         return result;
     }
-    
+
     private Properties getBaseQuartzProperties(final boolean isMisfire) {
         Properties result = new Properties();
         result.put("org.quartz.threadPool.class", org.quartz.simpl.SimpleThreadPool.class.getName());
@@ -141,27 +142,27 @@ public class JobScheduler {
         result.put("org.quartz.plugin.shutdownhook.cleanShutdown", Boolean.TRUE.toString());
         return result;
     }
-    
+
     /**
      * 停止作业调度.
      */
     public void shutdown() {
         jobRegistry.getJobScheduleController(jobName).shutdown();
     }
-    
+
     /**
      * Lite调度作业.
-     * 
+     *
      * @author zhangliang
      */
     public static final class LiteJob implements Job {
-        
+
         @Setter
         private ElasticJob elasticJob;
-        
+
         @Setter
         private JobFacade jobFacade;
-        
+
         @Override
         public void execute(final JobExecutionContext context) throws JobExecutionException {
             JobExecutorFactory.getJobExecutor(elasticJob, jobFacade).execute();
