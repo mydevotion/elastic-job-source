@@ -86,6 +86,7 @@ public abstract class AbstractJobBeanDefinitionParser extends AbstractBeanDefini
         // 根据注册中心配置注册中心
         factory.addConstructorArgReference(element.getAttribute(REGISTRY_CENTER_REF_ATTRIBUTE));
 
+        //LiteJobConfiguration
         factory.addConstructorArgValue(createLiteJobConfiguration(element));
         BeanDefinition jobEventConfig = createJobEventConfig(element);
         if (null != jobEventConfig) {
@@ -111,6 +112,7 @@ public abstract class AbstractJobBeanDefinitionParser extends AbstractBeanDefini
     }
 
     private BeanDefinition createLiteJobConfigurationBeanDefinition(final Element element, final BeanDefinition jobCoreBeanDefinition) {
+        // 直接通过私有构造器生成LiteJobConfiguration，而不是通过 LiteJobConfiguration.Builder构造
         BeanDefinitionBuilder result = BeanDefinitionBuilder.rootBeanDefinition(LiteJobConfiguration.class);
         result.addConstructorArgValue(getJobTypeConfigurationBeanDefinition(jobCoreBeanDefinition, element));
         result.addConstructorArgValue(element.getAttribute(MONITOR_EXECUTION_ATTRIBUTE));
@@ -125,6 +127,7 @@ public abstract class AbstractJobBeanDefinitionParser extends AbstractBeanDefini
     // 根据spring标签配置，创建JobCoreConfiguration
     private BeanDefinition createJobCoreBeanDefinition(final Element element) {
         BeanDefinitionBuilder jobCoreBeanDefinitionBuilder = BeanDefinitionBuilder.rootBeanDefinition(JobCoreConfiguration.class);
+        //  JobCoreConfiguration的jobName,取得是spring标签配置的ID属性
         jobCoreBeanDefinitionBuilder.addConstructorArgValue(element.getAttribute(ID_ATTRIBUTE));
         jobCoreBeanDefinitionBuilder.addConstructorArgValue(element.getAttribute(CRON_ATTRIBUTE));
         jobCoreBeanDefinitionBuilder.addConstructorArgValue(element.getAttribute(SHARDING_TOTAL_COUNT_ATTRIBUTE));
