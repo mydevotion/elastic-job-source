@@ -33,15 +33,20 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 public final class JobCoreConfiguration {
-    
+
+    /** job名称，spring标签的id */
     private final String jobName;
-    
+
+    /** 定时任务的配置表达式 */
     private final String cron;
-    
+
+    /** 分片总量 */
     private final int shardingTotalCount;
-    
+
+    /** 分片项参数 */
     private final String shardingItemParameters;
-    
+
+    /** 定时任务参数 */
     private final String jobParameter;
     
     private final boolean failover;
@@ -49,7 +54,8 @@ public final class JobCoreConfiguration {
     private final boolean misfire;
     
     private final String description;
-    
+
+    /** 作业配置属性 */
     private final JobProperties jobProperties;
     
     /**

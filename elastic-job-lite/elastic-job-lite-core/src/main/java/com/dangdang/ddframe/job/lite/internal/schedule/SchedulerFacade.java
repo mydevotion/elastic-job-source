@@ -52,6 +52,7 @@ public class SchedulerFacade {
     private final ListenerManager listenerManager;
     
     public SchedulerFacade(final CoordinatorRegistryCenter regCenter, final String jobName, final List<ElasticJobListener> elasticJobListeners) {
+        //
         configService = new ConfigurationService(regCenter, jobName);
         leaderElectionService = new LeaderElectionService(regCenter, jobName);
         serverService = new ServerService(regCenter, jobName);

@@ -102,7 +102,7 @@ public abstract class AbstractJobBeanDefinitionParser extends AbstractBeanDefini
     // 根据配置，创建job配置
 
     /**
-     * LiteJobConfiguration <-- JobCoreConfiguration <-- JobProperties
+     * LiteJobConfiguration <-- JobTypeConfiguration <-- JobCoreConfiguration <-- JobProperties
      *
      * @param element
      * @return
@@ -155,6 +155,12 @@ public abstract class AbstractJobBeanDefinitionParser extends AbstractBeanDefini
         return result.getBeanDefinition();
     }
 
+    /**
+     * 创建作业数据库事件配置.
+     *
+     * @param element
+     * @return
+     */
     private BeanDefinition createJobEventConfig(final Element element) {
         String eventTraceDataSourceName = element.getAttribute(EVENT_TRACE_RDB_DATA_SOURCE_ATTRIBUTE);
         if (Strings.isNullOrEmpty(eventTraceDataSourceName)) {

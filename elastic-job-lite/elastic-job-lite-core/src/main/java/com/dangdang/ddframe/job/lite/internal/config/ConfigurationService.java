@@ -26,21 +26,27 @@ import com.google.common.base.Optional;
 
 /**
  * 弹性化分布式作业配置服务.
- * 
+ * <p>
+ * 向zookeeper存取{@link com.dangdang.ddframe.job.lite.config.LiteJobConfiguration}的服务类
+ *
  * @author zhangliang
  * @author caohao
  */
 public class ConfigurationService {
-    
+
+    /**
+     * 节点的存储路径，及与zookeeper的交互类
+     */
     private final JobNodeStorage jobNodeStorage;
-    
+
     public ConfigurationService(final CoordinatorRegistryCenter regCenter, final String jobName) {
         jobNodeStorage = new JobNodeStorage(regCenter, jobName);
     }
-    
+
     /**
      * 读取作业配置.
-     * 
+     * 因为jobNodeStorage已经存了jobName，所以它能够获取到对应的LiteJobConfiguration
+     *
      * @param fromCache 是否从缓存中读取
      * @return 作业配置
      */
@@ -56,29 +62,32 @@ public class ConfigurationService {
         }
         return LiteJobConfigurationGsonFactory.fromJson(result);
     }
-    
+
     /**
      * 持久化分布式作业配置信息.
-     * 
+     *
      * @param liteJobConfig 作业配置
      */
     public void persist(final LiteJobConfiguration liteJobConfig) {
         checkConflictJob(liteJobConfig);
         if (!jobNodeStorage.isJobNodeExisted(ConfigurationNode.ROOT) || liteJobConfig.isOverwrite()) {
+            // 如果尚未有节点注册，或者是节点被覆盖，则替换节点
             jobNodeStorage.replaceJobNode(ConfigurationNode.ROOT, LiteJobConfigurationGsonFactory.toJson(liteJobConfig));
         }
     }
-    
+
     private void checkConflictJob(final LiteJobConfiguration liteJobConfig) {
         Optional<LiteJobConfiguration> liteJobConfigFromZk = find();
+        // 如果判断类型不一致就抛出异常
         if (liteJobConfigFromZk.isPresent() && !liteJobConfigFromZk.get().getTypeConfig().getJobClass().equals(liteJobConfig.getTypeConfig().getJobClass())) {
-            throw new JobConfigurationException("Job conflict with register center. The job '%s' in register center's class is '%s', your job class is '%s'", 
+            throw new JobConfigurationException("Job conflict with register center. The job '%s' in register center's class is '%s', your job class is '%s'",
                     liteJobConfig.getJobName(), liteJobConfigFromZk.get().getTypeConfig().getJobClass(), liteJobConfig.getTypeConfig().getJobClass());
         }
     }
-    
+
     private Optional<LiteJobConfiguration> find() {
         if (!jobNodeStorage.isJobNodeExisted(ConfigurationNode.ROOT)) {
+            // 如果zk上尚未有注册节点，则返回一个空的Optional
             return Optional.absent();
         }
         LiteJobConfiguration result = LiteJobConfigurationGsonFactory.fromJson(jobNodeStorage.getJobNodeDataDirectly(ConfigurationNode.ROOT));
@@ -88,15 +97,15 @@ public class ConfigurationService {
         }
         return Optional.fromNullable(result);
     }
-    
+
     /**
      * 检查本机与注册中心的时间误差秒数是否在允许范围.
-     * 
+     *
      * @throws JobExecutionEnvironmentException 本机与注册中心的时间误差秒数不在允许范围所抛出的异常
      */
     public void checkMaxTimeDiffSecondsTolerable() throws JobExecutionEnvironmentException {
-        int maxTimeDiffSeconds =  load(true).getMaxTimeDiffSeconds();
-        if (-1  == maxTimeDiffSeconds) {
+        int maxTimeDiffSeconds = load(true).getMaxTimeDiffSeconds();
+        if (-1 == maxTimeDiffSeconds) {
             return;
         }
         long timeDiff = Math.abs(System.currentTimeMillis() - jobNodeStorage.getRegistryCenterTime());

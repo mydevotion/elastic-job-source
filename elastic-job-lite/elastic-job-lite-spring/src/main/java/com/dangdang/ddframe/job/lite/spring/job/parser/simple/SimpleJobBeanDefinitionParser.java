@@ -27,11 +27,19 @@ import static com.dangdang.ddframe.job.lite.spring.job.parser.common.BaseJobBean
 
 /**
  * 简单作业的命名空间解析器.
- * 
+ *
  * @author caohao
  */
 public final class SimpleJobBeanDefinitionParser extends AbstractJobBeanDefinitionParser {
-    
+
+    /**
+     * 通过job的具体实现类的类名和{@link com.dangdang.ddframe.job.config.JobCoreConfiguration}实例，
+     * 创建{@link com.dangdang.ddframe.job.config.JobTypeConfiguration}实例
+     *
+     * @param jobCoreConfigurationBeanDefinition
+     * @param element
+     * @return
+     */
     @Override
     protected BeanDefinition getJobTypeConfigurationBeanDefinition(final BeanDefinition jobCoreConfigurationBeanDefinition, final Element element) {
         BeanDefinitionBuilder result = BeanDefinitionBuilder.rootBeanDefinition(SimpleJobConfiguration.class);

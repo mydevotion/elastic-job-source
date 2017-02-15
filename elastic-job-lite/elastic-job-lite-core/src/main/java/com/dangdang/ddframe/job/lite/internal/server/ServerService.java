@@ -26,32 +26,34 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 作业服务器节点服务.
- * 
+ * 作业服务器节点服务类.
+ *
  * @author zhangliang
  * @author caohao
  */
 public class ServerService {
-    
+
     private final JobNodeStorage jobNodeStorage;
-    
+
     private final LocalHostService localHostService = new LocalHostService();
-    
+
     public ServerService(final CoordinatorRegistryCenter regCenter, final String jobName) {
         jobNodeStorage = new JobNodeStorage(regCenter, jobName);
     }
-    
+
     /**
      * 每次作业启动前清理上次运行状态.
      */
     public void clearPreviousServerStatus() {
+        // 清理"/status"节点
         jobNodeStorage.removeJobNodeIfExisted(ServerNode.getStatusNode(localHostService.getIp()));
+        // 清理"/shutdown"节点
         jobNodeStorage.removeJobNodeIfExisted(ServerNode.getShutdownNode(localHostService.getIp()));
     }
-    
+
     /**
      * 持久化作业服务器上线相关信息.
-     * 
+     *
      * @param enabled 作业是否启用
      */
     public void persistServerOnline(final boolean enabled) {
@@ -64,56 +66,56 @@ public class ServerService {
         jobNodeStorage.fillEphemeralJobNode(ServerNode.getStatusNode(localHostService.getIp()), ServerStatus.READY);
         jobNodeStorage.removeJobNodeIfExisted(ServerNode.getShutdownNode(localHostService.getIp()));
     }
-    
+
     /**
      * 清除立刻执行作业的标记.
      */
     public void clearJobTriggerStatus() {
         jobNodeStorage.removeJobNodeIfExisted(ServerNode.getTriggerNode(localHostService.getIp()));
     }
-    
+
     /**
      * 清除暂停作业的标记.
      */
     public void clearJobPausedStatus() {
         jobNodeStorage.removeJobNodeIfExisted(ServerNode.getPausedNode(localHostService.getIp()));
     }
-    
+
     /**
      * 判断是否是手工暂停的作业.
-     * 
+     *
      * @return 是否是手工暂停的作业
      */
     public boolean isJobPausedManually() {
         return jobNodeStorage.isJobNodeExisted(ServerNode.getPausedNode(localHostService.getIp()));
     }
-    
+
     /**
      * 处理服务器关机的相关信息.
      */
     public void processServerShutdown() {
         jobNodeStorage.removeJobNodeIfExisted(ServerNode.getStatusNode(localHostService.getIp()));
     }
-    
+
     /**
      * 在开始或结束执行作业时更新服务器状态.
-     * 
+     *
      * @param status 服务器状态
      */
     public void updateServerStatus(final ServerStatus status) {
         jobNodeStorage.updateJobNode(ServerNode.getStatusNode(localHostService.getIp()), status);
     }
-    
+
     /**
      * 删除服务器状态.
      */
     public void removeServerStatus() {
         jobNodeStorage.removeJobNodeIfExisted(ServerNode.getStatusNode(localHostService.getIp()));
     }
-    
+
     /**
      * 获取所有的作业服务器列表.
-     * 
+     *
      * @return 所有的作业服务器列表
      */
     public List<String> getAllServers() {
@@ -121,7 +123,7 @@ public class ServerService {
         Collections.sort(result);
         return result;
     }
-    
+
     /**
      * 获取可分片的作业服务器列表.
      *
@@ -137,15 +139,15 @@ public class ServerService {
         }
         return result;
     }
-    
+
     private boolean isAvailableShardingServer(final String ip) {
-        return jobNodeStorage.isJobNodeExisted(ServerNode.getStatusNode(ip)) 
+        return jobNodeStorage.isJobNodeExisted(ServerNode.getStatusNode(ip))
                 && !jobNodeStorage.isJobNodeExisted(ServerNode.getDisabledNode(ip)) && !jobNodeStorage.isJobNodeExisted(ServerNode.getShutdownNode(ip));
     }
-    
+
     /**
      * 获取可用的作业服务器列表.
-     * 
+     *
      * @return 可用的作业服务器列表
      */
     public List<String> getAvailableServers() {
@@ -158,10 +160,10 @@ public class ServerService {
         }
         return result;
     }
-    
+
     /**
      * 判断作业服务器是否可用.
-     * 
+     *
      * @param ip 作业服务器IP地址.
      * @return 作业服务器是否可用
      */
@@ -169,17 +171,17 @@ public class ServerService {
         return jobNodeStorage.isJobNodeExisted(ServerNode.getStatusNode(ip)) && !jobNodeStorage.isJobNodeExisted(ServerNode.getPausedNode(ip))
                 && !jobNodeStorage.isJobNodeExisted(ServerNode.getDisabledNode(ip)) && !jobNodeStorage.isJobNodeExisted(ServerNode.getShutdownNode(ip));
     }
-    
+
     /**
      * 判断当前服务器是否是等待执行的状态.
-     * 
+     *
      * @return 当前服务器是否是等待执行的状态
      */
     public boolean isLocalhostServerReady() {
         String ip = localHostService.getIp();
         return isAvailableServer(ip) && ServerStatus.READY.name().equals(jobNodeStorage.getJobNodeData(ServerNode.getStatusNode(ip)));
     }
-    
+
     /**
      * 判断当前服务器是否是启用状态.
      *
