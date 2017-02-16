@@ -185,6 +185,10 @@ public class JobNodeStorage {
      * @param callback  执行操作的回调
      */
     public void executeInLeader(final String latchNode, final LeaderExecutionCallback callback) {
+        /**
+         * 挺好用的语法,不用写一大堆finally来关闭资源,所有实现Closeable的类声明都可以写在里面,
+         * 最常见于流操作,socket操作,新版的httpclient也可以;
+         */
         try (LeaderLatch latch = new LeaderLatch(getClient(), jobNodePath.getFullPath(latchNode))) {
             latch.start();
             latch.await();

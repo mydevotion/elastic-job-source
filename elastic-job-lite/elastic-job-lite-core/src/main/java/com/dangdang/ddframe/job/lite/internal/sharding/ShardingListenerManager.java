@@ -31,22 +31,22 @@ import org.apache.curator.framework.recipes.cache.TreeCacheEvent.Type;
 
 /**
  * 分片监听管理器.
- * 
+ *
  * @author zhangliang
  */
 public class ShardingListenerManager extends AbstractListenerManager {
-    
+
     private final ShardingService shardingService;
-    
+
     private final ExecutionService executionService;
-    
+
     private final ConfigurationNode configNode;
-    
+
     private final ServerNode serverNode;
-    
+
     @Setter
     private int currentShardingTotalCount;
-    
+
     public ShardingListenerManager(final CoordinatorRegistryCenter regCenter, final String jobName) {
         super(regCenter, jobName);
         shardingService = new ShardingService(regCenter, jobName);
@@ -54,17 +54,18 @@ public class ShardingListenerManager extends AbstractListenerManager {
         configNode = new ConfigurationNode(jobName);
         serverNode = new ServerNode(jobName);
     }
-    
+
     @Override
     public void start() {
         addDataListener(new ShardingTotalCountChangedJobListener());
         addDataListener(new ListenServersChangedJobListener());
     }
-    
+
     class ShardingTotalCountChangedJobListener extends AbstractJobListener {
-        
+
         @Override
         protected void dataChanged(final CuratorFramework client, final TreeCacheEvent event, final String path) {
+            // 如果路径是配置路径
             if (configNode.isConfigPath(path) && 0 != currentShardingTotalCount) {
                 int newShardingTotalCount = LiteJobConfigurationGsonFactory.fromJson(new String(event.getData().getData())).getTypeConfig().getCoreConfig().getShardingTotalCount();
                 if (newShardingTotalCount != currentShardingTotalCount) {
@@ -75,16 +76,24 @@ public class ShardingListenerManager extends AbstractListenerManager {
             }
         }
     }
-    
+
     class ListenServersChangedJobListener extends AbstractJobListener {
-        
+
         @Override
         protected void dataChanged(final CuratorFramework client, final TreeCacheEvent event, final String path) {
+            // 如果是
             if (isServersCrashed(event, path) || serverNode.isServerDisabledPath(path) || serverNode.isServerShutdownPath(path)) {
                 shardingService.setReshardingFlag();
             }
         }
-        
+
+        /**
+         * 判断server status是不是非update
+         *
+         * @param event
+         * @param path
+         * @return
+         */
         private boolean isServersCrashed(final TreeCacheEvent event, final String path) {
             return serverNode.isServerStatusPath(path) && Type.NODE_UPDATED != event.getType();
         }

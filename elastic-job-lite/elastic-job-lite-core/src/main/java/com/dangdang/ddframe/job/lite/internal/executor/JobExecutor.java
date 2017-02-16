@@ -17,6 +17,7 @@
 
 package com.dangdang.ddframe.job.lite.internal.executor;
 
+import com.dangdang.ddframe.job.lite.api.JobScheduler;
 import com.dangdang.ddframe.job.lite.api.listener.AbstractDistributeOnceElasticJobListener;
 import com.dangdang.ddframe.job.lite.api.listener.ElasticJobListener;
 import com.dangdang.ddframe.job.lite.config.LiteJobConfiguration;
@@ -31,19 +32,19 @@ import java.util.List;
 
 /**
  * 作业启动器.
- * 
+ *
  * @author zhangliang
  */
 @Slf4j
 public class JobExecutor {
-    
+
     private final LiteJobConfiguration liteJobConfig;
-    
+
     private final CoordinatorRegistryCenter regCenter;
-    
+
     @Getter
     private final SchedulerFacade schedulerFacade;
-    
+
     public JobExecutor(final CoordinatorRegistryCenter regCenter, final LiteJobConfiguration liteJobConfig, final ElasticJobListener... elasticJobListeners) {
         this.liteJobConfig = liteJobConfig;
         this.regCenter = regCenter;
@@ -51,7 +52,7 @@ public class JobExecutor {
         setGuaranteeServiceForElasticJobListeners(regCenter, elasticJobListenerList);
         schedulerFacade = new SchedulerFacade(regCenter, liteJobConfig.getJobName(), elasticJobListenerList);
     }
-    
+
     private void setGuaranteeServiceForElasticJobListeners(final CoordinatorRegistryCenter regCenter, final List<ElasticJobListener> elasticJobListeners) {
         GuaranteeService guaranteeService = new GuaranteeService(regCenter, liteJobConfig.getJobName());
         for (ElasticJobListener each : elasticJobListeners) {
@@ -60,13 +61,16 @@ public class JobExecutor {
             }
         }
     }
-    
+
     /**
      * 初始化作业.
+     * elastic-job启动的时候调用，具体通过 {@link JobScheduler#init()}调用
      */
     public void init() {
         log.debug("Job '{}' controller init.", liteJobConfig.getJobName());
         schedulerFacade.clearPreviousServerStatus();
+
+        // 对/jobName下面的节点进行监控，注意这是监控，不是缓存
         regCenter.addCacheData("/" + liteJobConfig.getJobName());
         schedulerFacade.registerStartUpInfo(liteJobConfig);
     }

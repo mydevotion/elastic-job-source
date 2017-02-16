@@ -108,6 +108,7 @@ public class LeaderElectionService {
         public void execute() {
             // 只有在主节点不存在的时候才会写
             if (!jobNodeStorage.isJobNodeExisted(ElectionNode.LEADER_HOST) && (isForceElect || serverService.isAvailableServer(localHostService.getIp()))) {
+                // 将本机IP写入 "/jobName/leader/election/host"
                 jobNodeStorage.fillEphemeralJobNode(ElectionNode.LEADER_HOST, localHostService.getIp());
             }
         }

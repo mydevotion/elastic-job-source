@@ -31,25 +31,25 @@ import java.util.List;
 
 /**
  * 作业注册中心的监听器管理者.
- * 
+ *
  * @author zhangliang
  */
 public class ListenerManager {
-    
+
     private final ElectionListenerManager electionListenerManager;
-    
+
     private final ShardingListenerManager shardingListenerManager;
-    
+
     private final ExecutionListenerManager executionListenerManager;
-    
+
     private final FailoverListenerManager failoverListenerManager;
-    
+
     private final JobOperationListenerManager jobOperationListenerManager;
-    
+
     private final ConfigurationListenerManager configurationListenerManager;
 
     private final GuaranteeListenerManager guaranteeListenerManager;
-    
+
     public ListenerManager(final CoordinatorRegistryCenter regCenter, final String jobName, final List<ElasticJobListener> elasticJobListeners) {
         electionListenerManager = new ElectionListenerManager(regCenter, jobName);
         shardingListenerManager = new ShardingListenerManager(regCenter, jobName);
@@ -59,12 +59,14 @@ public class ListenerManager {
         configurationListenerManager = new ConfigurationListenerManager(regCenter, jobName);
         guaranteeListenerManager = new GuaranteeListenerManager(regCenter, jobName, elasticJobListeners);
     }
-    
+
     /**
      * 开启所有监听器.
      */
     public void startAllListeners() {
+        // 启动leader监控
         electionListenerManager.start();
+        // 启动分片监控
         shardingListenerManager.start();
         executionListenerManager.start();
         failoverListenerManager.start();
@@ -72,10 +74,10 @@ public class ListenerManager {
         configurationListenerManager.start();
         guaranteeListenerManager.start();
     }
-    
+
     /**
      * 设置当前分片总数.
-     * 
+     *
      * @param currentShardingTotalCount 当前分片总数
      */
     public void setCurrentShardingTotalCount(final int currentShardingTotalCount) {

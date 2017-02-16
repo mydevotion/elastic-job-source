@@ -37,6 +37,12 @@ public class ServerService {
 
     private final LocalHostService localHostService = new LocalHostService();
 
+    /**
+     * 作业服务器节点服务类，对作业的状态：启用、立即执行、暂停作业、更新服务状态，等等的服务类
+     *
+     * @param regCenter
+     * @param jobName
+     */
     public ServerService(final CoordinatorRegistryCenter regCenter, final String jobName) {
         jobNodeStorage = new JobNodeStorage(regCenter, jobName);
     }
@@ -45,9 +51,9 @@ public class ServerService {
      * 每次作业启动前清理上次运行状态.
      */
     public void clearPreviousServerStatus() {
-        // 清理"/status"节点
+        // 清理"/jobName/ip/status"节点
         jobNodeStorage.removeJobNodeIfExisted(ServerNode.getStatusNode(localHostService.getIp()));
-        // 清理"/shutdown"节点
+        // 清理"/jobName/ip/shutdown"节点
         jobNodeStorage.removeJobNodeIfExisted(ServerNode.getShutdownNode(localHostService.getIp()));
     }
 

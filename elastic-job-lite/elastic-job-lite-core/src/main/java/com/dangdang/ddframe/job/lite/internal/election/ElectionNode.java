@@ -21,29 +21,39 @@ import com.dangdang.ddframe.job.lite.internal.storage.JobNodePath;
 
 /**
  * Elastic Job主服务器根节点名称的常量类.
- * 
+ *
  * @author zhangliang
  */
 public final class ElectionNode {
-    
+
     /**
      * Elastic Job主服务器根节点.
      */
     public static final String ROOT = "leader";
-    
+
+    /** leader/election */
     static final String ELECTION_ROOT = ROOT + "/election";
-    
+
+    /** leader/election/host */
     static final String LEADER_HOST = ELECTION_ROOT + "/host";
-    
+
+    /**  leader/election/latch */
     static final String LATCH = ELECTION_ROOT + "/latch";
-    
+
     private final JobNodePath jobNodePath;
-    
+
     ElectionNode(final String jobName) {
         jobNodePath = new JobNodePath(jobName);
     }
-    
+
+    /**
+     * 判断传入的path是否为   /jobName/leader/election/host
+     *
+     * @param path
+     * @return
+     */
     boolean isLeaderHostPath(final String path) {
+        // leader/election/host
         return jobNodePath.getFullPath(LEADER_HOST).equals(path);
     }
 }
