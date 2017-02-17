@@ -87,6 +87,7 @@ public class FailoverListenerManager extends AbstractListenerManager {
         
         @Override
         protected void dataChanged(final CuratorFramework client, final TreeCacheEvent event, final String path) {
+            //如果path类似于 /${namespace}/${jobName}/execution/1/running，则返回1
             failover(executionNode.getItemByRunningItemPath(path), event);
         }
     }

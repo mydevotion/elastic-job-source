@@ -70,8 +70,8 @@ public class ConfigurationService {
      */
     public void persist(final LiteJobConfiguration liteJobConfig) {
         checkConflictJob(liteJobConfig);
+        // 只有当源节点不存在，或者本节点已经被修改，才去持久化
         if (!jobNodeStorage.isJobNodeExisted(ConfigurationNode.ROOT) || liteJobConfig.isOverwrite()) {
-            // 如果尚未有节点注册，或者是节点被覆盖，则替换节点
             jobNodeStorage.replaceJobNode(ConfigurationNode.ROOT, LiteJobConfigurationGsonFactory.toJson(liteJobConfig));
         }
     }

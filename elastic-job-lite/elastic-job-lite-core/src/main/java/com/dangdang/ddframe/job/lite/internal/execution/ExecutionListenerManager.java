@@ -28,30 +28,31 @@ import org.apache.curator.framework.recipes.cache.TreeCacheEvent.Type;
 
 /**
  * 运行时状态监听管理器.
- * 
+ *
  * @author zhangliang
  */
 public class ExecutionListenerManager extends AbstractListenerManager {
-    
+
     private final ExecutionService executionService;
-    
+
     private final ConfigurationNode configNode;
-    
+
     public ExecutionListenerManager(final CoordinatorRegistryCenter regCenter, final String jobName) {
         super(regCenter, jobName);
         executionService = new ExecutionService(regCenter, jobName);
         configNode = new ConfigurationNode(jobName);
     }
-    
+
     @Override
     public void start() {
         addDataListener(new MonitorExecutionChangedJobListener());
     }
-    
+
     class MonitorExecutionChangedJobListener extends AbstractJobListener {
-        
+
         @Override
         protected void dataChanged(final CuratorFramework client, final TreeCacheEvent event, final String path) {
+            // 如果路径是作业配置路径"/namespace/jobName/config"，且状态为更新,且job 监控未开启，则删除作业执行信息
             if (configNode.isConfigPath(path) && Type.NODE_UPDATED == event.getType()
                     && !LiteJobConfigurationGsonFactory.fromJson(new String(event.getData().getData())).isMonitorExecution()) {
                 executionService.removeExecutionInfo();

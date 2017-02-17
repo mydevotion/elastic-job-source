@@ -308,6 +308,7 @@
                         <target>${java.version}</target>
                         <testSource>${java.version}</testSource>
                         <testTarget>${java.version}</testTarget>
+                        <skip>true</skip>
                     </configuration>
                     <version>${maven-compiler-plugin.version}</version>
                 </plugin>
@@ -330,6 +331,7 @@
                         <excludes>
                             <exclude>com.dangdang.ddframe.job.lite.integrate.**</exclude>
                         </excludes>
+                        <skip>true</skip>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -343,6 +345,7 @@
                     <version>${maven-site-plugin.version}</version>
                     <configuration>
                         <locales>${project.build.locale}</locales>
+                        <skip>true</skip>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -380,6 +383,7 @@
                                 </pluginExecution>
                             </pluginExecutions>
                         </lifecycleMappingMetadata>
+                        <skip>true</skip>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -388,6 +392,7 @@
                     <version>${maven-plugin-plugin.version}</version>
                     <configuration>
                         <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+                        <skip>true</skip>
                     </configuration>
                     <executions>
                         <execution>
@@ -438,6 +443,7 @@
                     <charset>${project.build.sourceEncoding}</charset>
                     <encoding>${project.build.sourceEncoding}</encoding>
                     <docencoding>${project.build.sourceEncoding}</docencoding>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
             <plugin>
@@ -460,6 +466,7 @@
                                 </requireJavaVersion>
                             </rules>
                             <fail>true</fail>
+                            <skip>true</skip>
                         </configuration>
                     </execution>
                 </executions>
@@ -565,6 +572,7 @@
                     <aggregate>true</aggregate>
                     <sourceEncoding>${project.build.sourceEncoding}</sourceEncoding>
                     <targetJdk>${java.version}</targetJdk>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
             <plugin>
@@ -578,6 +586,7 @@
                 <version>${taglist-maven-plugin.version}</version>
                 <configuration>
                     <aggregate>true</aggregate>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>
