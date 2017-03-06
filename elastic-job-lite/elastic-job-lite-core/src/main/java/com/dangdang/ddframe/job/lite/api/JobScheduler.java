@@ -118,12 +118,20 @@ public class JobScheduler {
         return Optional.absent();
     }
 
+    /**
+     * 创建quartz的Scheduler
+     *
+     * @param isMisfire
+     * @return
+     */
     private Scheduler createScheduler(final boolean isMisfire) {
         Scheduler result;
         try {
             StdSchedulerFactory factory = new StdSchedulerFactory();
             factory.initialize(getBaseQuartzProperties(isMisfire));
             result = factory.getScheduler();
+
+            //添加监视器
             result.getListenerManager().addTriggerListener(jobExecutor.getSchedulerFacade().newJobTriggerListener());
         } catch (final SchedulerException ex) {
             throw new JobSystemException(ex);
@@ -131,6 +139,12 @@ public class JobScheduler {
         return result;
     }
 
+    /**
+     * 设置配置参数
+     *
+     * @param isMisfire
+     * @return
+     */
     private Properties getBaseQuartzProperties(final boolean isMisfire) {
         Properties result = new Properties();
         result.put("org.quartz.threadPool.class", org.quartz.simpl.SimpleThreadPool.class.getName());
