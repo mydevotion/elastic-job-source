@@ -70,8 +70,11 @@ public abstract class AbstractJobBeanDefinitionParser extends AbstractBeanDefini
 
     @Override
     protected AbstractBeanDefinition parseInternal(final Element element, final ParserContext parserContext) {
+        // 该标签实际上是创建了一个SpringJobScheduler bean
         BeanDefinitionBuilder factory = BeanDefinitionBuilder.rootBeanDefinition(SpringJobScheduler.class);
+        // 初始化方法 init
         factory.setInitMethodName("init");
+        // 销毁方法 shutdown
         factory.setDestroyMethodName("shutdown");
         // 如果标签中有 class属性，则根据类名称获取spring bean初始化到SpringJobScheduler中
         /**
@@ -99,9 +102,9 @@ public abstract class AbstractJobBeanDefinitionParser extends AbstractBeanDefini
     protected abstract BeanDefinition getJobTypeConfigurationBeanDefinition(final BeanDefinition jobCoreConfigurationBeanDefinition, final Element element);
 
 
-    // 根据配置，创建job配置
-
     /**
+     * 创建基于LiteJobConfiguration的spring的bean
+     * <p>
      * LiteJobConfiguration <-- JobTypeConfiguration <-- JobCoreConfiguration <-- JobProperties
      *
      * @param element
@@ -114,6 +117,8 @@ public abstract class AbstractJobBeanDefinitionParser extends AbstractBeanDefini
     private BeanDefinition createLiteJobConfigurationBeanDefinition(final Element element, final BeanDefinition jobCoreBeanDefinition) {
         // 直接通过私有构造器生成LiteJobConfiguration，而不是通过 LiteJobConfiguration.Builder构造
         BeanDefinitionBuilder result = BeanDefinitionBuilder.rootBeanDefinition(LiteJobConfiguration.class);
+
+        // 根据JobCoreConfiguration创建JobTypeConfiguration，simple标签创建的是SimpleJobConfiguration
         result.addConstructorArgValue(getJobTypeConfigurationBeanDefinition(jobCoreBeanDefinition, element));
         result.addConstructorArgValue(element.getAttribute(MONITOR_EXECUTION_ATTRIBUTE));
         result.addConstructorArgValue(element.getAttribute(MAX_TIME_DIFF_SECONDS_ATTRIBUTE));
@@ -124,24 +129,39 @@ public abstract class AbstractJobBeanDefinitionParser extends AbstractBeanDefini
         return result.getBeanDefinition();
     }
 
-    // 根据spring标签配置，创建JobCoreConfiguration
+
+    /**
+     * 根据spring标签配置，创建JobCoreConfiguration
+     *
+     * @param element spring标签
+     * @return
+     */
     private BeanDefinition createJobCoreBeanDefinition(final Element element) {
         BeanDefinitionBuilder jobCoreBeanDefinitionBuilder = BeanDefinitionBuilder.rootBeanDefinition(JobCoreConfiguration.class);
         //  JobCoreConfiguration的jobName,取得是spring标签配置的ID属性
         jobCoreBeanDefinitionBuilder.addConstructorArgValue(element.getAttribute(ID_ATTRIBUTE));
+        //cron
         jobCoreBeanDefinitionBuilder.addConstructorArgValue(element.getAttribute(CRON_ATTRIBUTE));
+        //sharding-total-count
         jobCoreBeanDefinitionBuilder.addConstructorArgValue(element.getAttribute(SHARDING_TOTAL_COUNT_ATTRIBUTE));
+        //sharding-item-parameters
         jobCoreBeanDefinitionBuilder.addConstructorArgValue(element.getAttribute(SHARDING_ITEM_PARAMETERS_ATTRIBUTE));
+        //job-parameter
         jobCoreBeanDefinitionBuilder.addConstructorArgValue(element.getAttribute(JOB_PARAMETER_ATTRIBUTE));
+        //failover
         jobCoreBeanDefinitionBuilder.addConstructorArgValue(element.getAttribute(FAILOVER_ATTRIBUTE));
+        //misfire
         jobCoreBeanDefinitionBuilder.addConstructorArgValue(element.getAttribute(MISFIRE_ATTRIBUTE));
+        //description
         jobCoreBeanDefinitionBuilder.addConstructorArgValue(element.getAttribute(DESCRIPTION_ATTRIBUTE));
+        // JobProperties
         jobCoreBeanDefinitionBuilder.addConstructorArgValue(createJobPropertiesBeanDefinition(element));
         return jobCoreBeanDefinitionBuilder.getBeanDefinition();
     }
 
     /**
      * 根据spring标签配置创建JobProperties
+     * JobProperties持有JobExceptionHandler及ExecutorServiceHandler
      *
      * @param element
      * @return
