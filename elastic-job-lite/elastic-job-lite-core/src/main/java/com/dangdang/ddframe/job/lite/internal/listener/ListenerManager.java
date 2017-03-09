@@ -68,6 +68,7 @@ public class ListenerManager {
         electionListenerManager.start();
         // 启动分片监控
         shardingListenerManager.start();
+        // 启动运行时状态监控
         executionListenerManager.start();
         failoverListenerManager.start();
         jobOperationListenerManager.start();

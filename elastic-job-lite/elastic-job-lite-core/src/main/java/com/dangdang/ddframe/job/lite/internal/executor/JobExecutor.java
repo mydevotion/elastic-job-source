@@ -23,6 +23,7 @@ import com.dangdang.ddframe.job.lite.api.listener.ElasticJobListener;
 import com.dangdang.ddframe.job.lite.config.LiteJobConfiguration;
 import com.dangdang.ddframe.job.lite.internal.guarantee.GuaranteeService;
 import com.dangdang.ddframe.job.lite.internal.schedule.SchedulerFacade;
+import com.dangdang.ddframe.job.lite.internal.server.ServerNode;
 import com.dangdang.ddframe.job.reg.base.CoordinatorRegistryCenter;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +46,13 @@ public class JobExecutor {
     @Getter
     private final SchedulerFacade schedulerFacade;
 
+    /**
+     * 有参构造器
+     *
+     * @param regCenter           注册中心
+     * @param liteJobConfig       任务定义
+     * @param elasticJobListeners 监听者
+     */
     public JobExecutor(final CoordinatorRegistryCenter regCenter, final LiteJobConfiguration liteJobConfig, final ElasticJobListener... elasticJobListeners) {
         this.liteJobConfig = liteJobConfig;
         this.regCenter = regCenter;
@@ -53,6 +61,12 @@ public class JobExecutor {
         schedulerFacade = new SchedulerFacade(regCenter, liteJobConfig.getJobName(), elasticJobListenerList);
     }
 
+    /**
+     * 如果任务监听者是AbstractDistributeOnceElasticJobListener的子类，则设置这些监听者的GuaranteeService
+     *
+     * @param regCenter
+     * @param elasticJobListeners
+     */
     private void setGuaranteeServiceForElasticJobListeners(final CoordinatorRegistryCenter regCenter, final List<ElasticJobListener> elasticJobListeners) {
         GuaranteeService guaranteeService = new GuaranteeService(regCenter, liteJobConfig.getJobName());
         for (ElasticJobListener each : elasticJobListeners) {
@@ -68,9 +82,11 @@ public class JobExecutor {
      */
     public void init() {
         log.debug("Job '{}' controller init.", liteJobConfig.getJobName());
+        // 清理"/${jobName}/${ip}/status"节点
+        // 清理"/${jobName}/${ip}/shutdown"节点
         schedulerFacade.clearPreviousServerStatus();
 
-        // 对/jobName下面的节点进行监控，注意这是监控，不是缓存
+        // 对/${jobName}下面的节点进行监控，注意这是监控，不是缓存
         regCenter.addCacheData("/" + liteJobConfig.getJobName());
         schedulerFacade.registerStartUpInfo(liteJobConfig);
     }

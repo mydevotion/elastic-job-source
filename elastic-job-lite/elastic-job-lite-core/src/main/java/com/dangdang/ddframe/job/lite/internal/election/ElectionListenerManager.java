@@ -95,7 +95,8 @@ public class ElectionListenerManager extends AbstractListenerManager {
             }
 
             /**
-             * 判断path是否是LeaderHostPath,即"/jobName/leader/election/host"，被移除leader
+             * 判断path是否是LeaderHostPath,
+             * 即path是否为"/${jobName}/leader/election/host" ，且事件为节点删除
              *
              * @return
              */
@@ -105,6 +106,7 @@ public class ElectionListenerManager extends AbstractListenerManager {
 
             /**
              * 判断给定路径是否从作业服务器禁用路径中移除
+             * path是否以"/${jobName}/${ip}/disabled"开头，且事件为节点删除
              *
              * @return
              */
@@ -114,6 +116,7 @@ public class ElectionListenerManager extends AbstractListenerManager {
 
             /**
              * 判断给定路径是否从作业服务器暂停路径中移除
+             * path是否以/${jobName}/servers/${ip}/paused开头，且事件为节点删除
              *
              * @return
              */

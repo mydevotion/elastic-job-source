@@ -101,7 +101,7 @@ public class ServerNode {
      * @return 是否为作业服务器暂停路径
      */
     public boolean isLocalJobPausedPath(final String path) {
-        //    /jobName/ip/paused
+        //    /${jobName}/servers/${ip}/paused
         return path.startsWith(jobNodePath.getFullPath(String.format(ServerNode.PAUSED, localHostService.getIp())));
     }
 
@@ -122,7 +122,7 @@ public class ServerNode {
      * @return 是否为作业服务器禁用路径
      */
     public boolean isLocalServerDisabledPath(final String path) {
-        //  /jobName/ip/disabled
+        //  /jobName/servers/ip/disabled
         return path.startsWith(jobNodePath.getFullPath(String.format(ServerNode.DISABLED, localHostService.getIp())));
     }
 
@@ -133,6 +133,7 @@ public class ServerNode {
      * @return 是否为作业服务器状态路径
      */
     public boolean isServerStatusPath(final String path) {
+        // 以"/${jobName}/servers"开头，以"status"结尾
         return path.startsWith(jobNodePath.getFullPath(ServerNode.ROOT)) && path.endsWith(ServerNode.STATUS_APPENDIX);
     }
 

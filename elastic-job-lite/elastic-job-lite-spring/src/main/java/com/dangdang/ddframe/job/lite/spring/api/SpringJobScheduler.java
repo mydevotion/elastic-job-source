@@ -34,6 +34,7 @@ import com.google.common.base.Optional;
  */
 public class SpringJobScheduler extends JobScheduler {
 
+    // 定时任务的业务逻辑实现类，需要使用方实现并指定
     private final ElasticJob elasticJob;
 
     public SpringJobScheduler(final ElasticJob elasticJob, final CoordinatorRegistryCenter regCenter,
@@ -48,6 +49,12 @@ public class SpringJobScheduler extends JobScheduler {
         this.elasticJob = elasticJob;
     }
 
+    /**
+     * 如果JobListeners是spring AOP对象，则获取自身
+     *
+     * @param elasticJobListeners
+     * @return
+     */
     private static ElasticJobListener[] getTargetElasticJobListeners(final ElasticJobListener[] elasticJobListeners) {
         final ElasticJobListener[] result = new ElasticJobListener[elasticJobListeners.length];
         for (int i = 0; i < elasticJobListeners.length; i++) {

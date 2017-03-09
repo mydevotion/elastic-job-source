@@ -91,6 +91,7 @@ public abstract class AbstractJobBeanDefinitionParser extends AbstractBeanDefini
 
         //LiteJobConfiguration
         factory.addConstructorArgValue(createLiteJobConfiguration(element));
+
         BeanDefinition jobEventConfig = createJobEventConfig(element);
         if (null != jobEventConfig) {
             factory.addConstructorArgValue(jobEventConfig);

@@ -85,6 +85,7 @@ public class ShardingService {
      * 设置需要重新分片的标记.
      */
     public void setReshardingFlag() {
+        // "/${jobName}/leader/sharding/necessary"
         jobNodeStorage.createJobNodeIfNeeded(ShardingNode.NECESSARY);
     }
 

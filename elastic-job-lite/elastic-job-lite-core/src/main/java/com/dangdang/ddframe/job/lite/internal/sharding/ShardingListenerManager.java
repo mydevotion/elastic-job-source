@@ -65,7 +65,7 @@ public class ShardingListenerManager extends AbstractListenerManager {
 
         @Override
         protected void dataChanged(final CuratorFramework client, final TreeCacheEvent event, final String path) {
-            // 如果路径是配置路径
+            // 如果路径是配置路径 ,传入的path是否为"/${jobName}/config"
             if (configNode.isConfigPath(path) && 0 != currentShardingTotalCount) {
                 int newShardingTotalCount = LiteJobConfigurationGsonFactory.fromJson(new String(event.getData().getData())).getTypeConfig().getCoreConfig().getShardingTotalCount();
                 if (newShardingTotalCount != currentShardingTotalCount) {

@@ -52,9 +52,11 @@ public class SchedulerFacade {
     private final ListenerManager listenerManager;
 
     public SchedulerFacade(final CoordinatorRegistryCenter regCenter, final String jobName, final List<ElasticJobListener> elasticJobListeners) {
-        //
+        //作业配置服务
         configService = new ConfigurationService(regCenter, jobName);
+        // leader选举服务
         leaderElectionService = new LeaderElectionService(regCenter, jobName);
+        // 作业服务节点
         serverService = new ServerService(regCenter, jobName);
         shardingService = new ShardingService(regCenter, jobName);
         executionService = new ExecutionService(regCenter, jobName);
@@ -64,6 +66,7 @@ public class SchedulerFacade {
 
     /**
      * 每次作业启动前清理上次运行状态.
+     * 调用了serverService.clearPreviousServerStatus();
      */
     public void clearPreviousServerStatus() {
         serverService.clearPreviousServerStatus();

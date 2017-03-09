@@ -144,6 +144,7 @@ public class ExecutionService {
      * 设置修复运行时分片信息标记的状态标志位.
      */
     public void setNeedFixExecutionInfoFlag() {
+        // "/${jobName}/leader/execution/necessary"
         jobNodeStorage.createJobNodeIfNeeded(ExecutionNode.NECESSARY);
     }
     
